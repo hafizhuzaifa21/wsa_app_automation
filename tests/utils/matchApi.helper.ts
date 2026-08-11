@@ -1,4 +1,5 @@
 import axios from "axios";
+import FormData from "form-data";
 import { LoginData } from "../data/login.data";
 
 const USERS_BASE_URL = "https://api-dev1.squadi.com/users";
@@ -334,6 +335,200 @@ export class MatchApiHelper {
         },
       },
     );
+  }
+
+  static async updateCompetitionScoring(
+    token: string,
+    mode: "MANAGERS" | "COURT",
+    courtScorerUserId?: number,
+  ): Promise<any> {
+    const form = new FormData();
+
+    form.append("id", "239");
+    form.append("name", "HR-ASN2-MD-Only");
+    form.append("longName", "HR-ASN2-MD-Only");
+    form.append("organisationId", "58");
+    form.append("yearRefId", "6");
+
+    form.append("scoringType", "SINGLE");
+    form.append("whoScoring", mode);
+    form.append("acceptScoring", "SCORER");
+
+    form.append(
+      "courtScorerUserId",
+      mode === "COURT" ? String(courtScorerUserId) : "null",
+    );
+
+    form.append("timerType", "PER_MATCH_PER_PERIOD");
+    form.append("attendanceRecordingType", "BOTH");
+    form.append("attendanceRecordingPeriod", "MATCH");
+    form.append("recordUmpireType", "USERS");
+
+    form.append("timeoutDetails", "{}");
+    form.append("officialOrganisationIds", "[]");
+    form.append("linkedMembershipProductIds", "[]");
+    form.append("linkedCompetitionIds", "[]");
+    form.append("fieldClosureAdmins", "[]");
+
+    form.append(
+      "umpireSequenceSettings",
+      JSON.stringify({
+        CoachEnabled: true,
+        ReserveEnabled: false,
+        NumberOfUmpires: 3,
+        officialSettings: {
+          1: false,
+          2: false,
+          3: false,
+          4: false,
+          5: false,
+          6: false,
+          7: false,
+          8: false,
+          9: false,
+          10: false,
+        },
+        AnyoneCanBeUmpire: false,
+        NumberOfOfficials: 0,
+        AllowHomeTeamManagerToVerifyOfficials: false,
+      }),
+    );
+
+    form.append(
+      "pointScheme",
+      JSON.stringify([
+        { id: 1, value: [1] },
+        { id: 10, value: [1] },
+        { id: 11, value: [1] },
+      ]),
+    );
+
+    form.append(
+      "borrowingPlayersRestrictionSetting",
+      JSON.stringify({
+        isUseAllDivisions: false,
+        rules: [],
+      }),
+    );
+
+    form.append(
+      "finalsEligibilitySetting",
+      JSON.stringify({
+        enabled: false,
+        isUseAllDivisions: false,
+        rules: [],
+      }),
+    );
+
+    form.append(
+      "forfeitSettings",
+      JSON.stringify({
+        affiliateForfeits: {
+          checked: false,
+          threshold: true,
+          thresholdFrom: 0,
+          thresholdTo: 0,
+        },
+        refereeForfeits: {
+          checked: false,
+          threshold: true,
+          thresholdFrom: 0,
+          thresholdTo: 0,
+        },
+        refereeAbandon: {
+          checked: false,
+          threshold: true,
+          thresholdFrom: 0,
+          thresholdTo: 0,
+        },
+        managerForfeits: {
+          checked: false,
+          thresholdFrom: 0,
+          thresholdTo: 0,
+        },
+      }),
+    );
+
+    form.append(
+      "teamOfficialRoleList",
+      JSON.stringify([
+        {
+          id: 435,
+          competitionId: 239,
+          roleId: 3,
+          lookupRoleId: 3,
+          sequence: 1,
+        },
+        {
+          id: 436,
+          competitionId: 239,
+          roleId: 17,
+          lookupRoleId: 17,
+          sequence: 2,
+        },
+      ]),
+    );
+
+    form.append(
+      "bestAndFairests",
+      JSON.stringify([
+        {
+          id: 1728,
+          enabled: false,
+          preferenceSetByRefId: 1,
+          awardWhichTeamRefId: 1,
+          receivingBFPointsRefId: 2,
+          bestAndFairestTypeRefId: 2,
+        },
+        {
+          id: 1727,
+          enabled: false,
+          preferenceSetByRefId: 1,
+          awardWhichTeamRefId: 1,
+          receivingBFPointsRefId: 2,
+          bestAndFairestTypeRefId: 1,
+        },
+      ]),
+    );
+
+    form.append(
+      "foulsSettings",
+      JSON.stringify({
+        sendoffReport: [
+          { type: "RC", value: "1" },
+          { type: "R1", value: "1" },
+          { type: "R2", value: "1" },
+          { type: "R3", value: "1" },
+          { type: "R4", value: "1" },
+          { type: "R5", value: "1" },
+          { type: "R6", value: "1" },
+          { type: "R7", value: "1" },
+          { type: "R8", value: "1" },
+        ],
+        recordOffenceCodes: true,
+      }),
+    );
+
+    form.append("gameTimeTracking", "1");
+    form.append("attendanceSelectionTime", "14400");
+    form.append("attendanceSelectionTimeEnd", "0");
+    form.append("allowAffiliatesEnterScore", "0");
+    form.append("isInvitorsChanged", "false");
+
+    const response = await axios.post(
+      `${LIVESCORES_BASE_URL}/competitions?competitionId=239&venues=[12,112]`,
+      form,
+      {
+        headers: {
+          Authorization: token,
+          SourceSystem: "WebAdmin",
+          Accept: "application/json",
+          ...form.getHeaders(),
+        },
+      },
+    );
+
+    return response.data;
   }
 
   static async createAndPublishMatch(

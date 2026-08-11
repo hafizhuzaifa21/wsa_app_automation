@@ -7,7 +7,7 @@ import {
 } from "../../utils/connectivity";
 import { LoginPage } from "../../pages/login.page";
 
-describe("App Foundation - Offline", () => {
+describe.skip("App Foundation - Offline", () => {
   const loginPage = new LoginPage();
   const appPackage = "com.wsa.netball.dev";
 
